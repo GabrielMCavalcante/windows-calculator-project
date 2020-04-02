@@ -4,11 +4,10 @@ let operations = [];
 let lastNumber = 0;
 let lastOperator = '';
 
-buttons.forEach(btn=>{
-    addEventListenerAll('mouseup drag', btn, ()=>{
+buttons.forEach(btn => {
+    addEventListenerAll('mouseup drag', btn, () => {
         const btnPressed = btn.textContent;
-        switch(btnPressed)
-        {
+        switch (btnPressed) {
             case '0':
             case '1':
             case '2':
@@ -44,37 +43,49 @@ buttons.forEach(btn=>{
                     handleEqualOperation();
                     break;
                 }
+            case '%':
+                {
+                    calcPercent();
+                    break;
+                }
+            default:
+                {
+                    throwError();
+                }
         }
     });
 });
 
-function addEventListenerAll(events, element, fn)
-{
-    events.split(' ').forEach(event=>{
+function throwError() {
+    clearDisplay();
+    updateDisplay('Error');
+    clearOperations();
+    lastNumber = 0;
+    lastOperator = '';
+}
+
+function addEventListenerAll(events, element, fn) {
+    events.split(' ').forEach(event => {
         element.addEventListener(event, fn);
     })
 }
 
-function updateDisplay(value)
-{
-    (display.innerHTML == 0) ? display.innerHTML = value : display.innerHTML += value;
+function updateDisplay(value) {
+    (display.innerHTML == 0 || display.innerHTML == 'Error') ? display.innerHTML = value : display.innerHTML += value;
 }
 
-function clearDisplay()
-{
+function clearDisplay() {
     display.innerHTML = 0;
 }
 
-function isOperator(input)
-{
-    return ['+','-','*','/'].indexOf(input) == -1 ? false : true; 
+function isOperator(input) {
+    return ['+', '-', '*', '/'].indexOf(input) == -1 ? false : true;
 }
 
-function getResult()
-{
-    if(operations.length == 3)
-    {
+function getResult() {
+    if (operations.length == 3) {
         const result = calcResult();
+        if (result == undefined) return true;
         addResultToOperations(result);
         clearDisplay();
         updateDisplay(operations[0]);
@@ -84,28 +95,33 @@ function getResult()
     return false;
 }
 
-function addNewOperation(newOp)
-{
-    if(isNaN(newOp))
-    {
+function calcPercent() {
+    const tax = lastNumber / 100;
+    const perc = operations.length > 1 ? operations[0] * tax : tax;
+    clearDisplay();
+    updateDisplay(perc);
+    operations[operations.length - 1] = perc;
+    lastNumber = perc;
+}
+
+function addNewOperation(newOp) {
+    if (isNaN(newOp)) {
         const operation = isOperator(newOp);
-        switch(operation)
-        {
+        switch (operation) {
             case true:
                 {
                     getResult();
+                    if (display.innerHTML == 'Error') return;
                     const lastPos = operations.length - 1;
-                    if(operations.length == 0)
-                    {
+                    if (operations.length == 0) {
                         operations.push(0);
                         operations.push(newOp.toString());
                     }
-                    else 
-                    {
-                        if(!isNaN(operations[lastPos]))
+                    else {
+                        if (!isNaN(operations[lastPos]))
                             operations.push(newOp.toString());
-                        
-                        else if(isOperator(operations[lastPos]))
+
+                        else if (isOperator(operations[lastPos]))
                             operations[lastPos] = newOp.toString();
                     }
                     lastOperator = newOp.toString();
@@ -117,38 +133,32 @@ function addNewOperation(newOp)
                 }
         }
     }
-    else 
-    {
-        const lastPos = operations.length-1;
-        if(!isNaN(operations[lastPos])) {
+    else {
+        const lastPos = operations.length - 1;
+        if (!isNaN(operations[lastPos])) {
             operations[lastPos] = parseFloat(operations[lastPos] + newOp.toString());
             updateDisplay(newOp);
         }
-        else
-        {
+        else {
             operations.push(parseFloat(newOp));
             clearDisplay();
             updateDisplay(newOp);
         }
-            
-        lastNumber = parseFloat(operations[operations.length-1]);
+
+        lastNumber = parseFloat(operations[operations.length - 1]);
     }
     console.log(operations);
-    console.log(lastOperator, lastNumber);
 }
 
-function handleEqualOperation()
-{
-    if(getResult()) return;
+function handleEqualOperation() {
+    if (lastOperator == '' || getResult()) return;
 
-    if(operations.length == 1)
-    {
+    if (operations.length == 1) {
         operations.push(lastOperator);
         operations.push(lastNumber);
         getResult();
     }
-    else
-    {
+    else {
         operations.push(operations[0]);
         lastNumber = operations[0];
         getResult();
@@ -156,21 +166,23 @@ function handleEqualOperation()
 
 }
 
-function calcResult() 
-{
-    operations[0] = '('+operations[0]+')';
-    operations[2] = '('+operations[2]+')';
+function calcResult() {
+    if (operations[1] == '/' && operations[2] == 0) {
+        throwError();
+        return;
+    }
+
+    operations[0] = '(' + operations[0] + ')';
+    operations[2] = '(' + operations[2] + ')';
     const expression = operations.join('');
     return eval(expression);
 }
 
-function addResultToOperations(result)
-{
+function addResultToOperations(result) {
     clearOperations();
     operations.push(result);
 }
 
-function clearOperations()
-{
+function clearOperations() {
     operations = [];
 }
