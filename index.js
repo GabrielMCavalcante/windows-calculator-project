@@ -63,6 +63,11 @@ buttons.forEach(btn => {
                     calcSquareRoot();
                     break;
                 }
+            case '±':
+                {
+                    calcPlusMinus();
+                    break;
+                }
             default:
                 {
                     throwError('Error');
@@ -96,6 +101,19 @@ function calcSquareRoot()
 {
     const lastPos = operations.length - 1;
     operations[lastPos] = parseFloat(Math.sqrt(operations[lastPos]));
+    updateResult(lastPos);
+}
+
+function calcPlusMinus()
+{
+    const lastPos = operations.length - 1;
+    if(lastPos > 1)
+        operations[lastPos] = -(operations[lastPos]);
+    else {
+        operations.push(operations[0]);
+        calcPlusMinus();
+        return;
+    }
     updateResult(lastPos);
 }
 
