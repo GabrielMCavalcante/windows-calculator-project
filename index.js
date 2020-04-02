@@ -48,17 +48,60 @@ buttons.forEach(btn => {
                     calcPercent();
                     break;
                 }
+            case '¹/x':
+                {
+                    calcOneOverX();
+                    break;
+                }
+            case 'x²':
+                {
+                    calcSquare();
+                    break;
+                }
+            case '√':
+                {
+                    calcSquareRoot();
+                    break;
+                }
             default:
                 {
-                    throwError();
+                    throwError('Error');
                 }
         }
     });
 });
 
-function throwError() {
+function updateResult(lastPos)
+{
     clearDisplay();
-    updateDisplay('Error');
+    updateDisplay(operations[lastPos]);
+    lastNumber = operations[lastPos];
+}
+
+function calcOneOverX()
+{
+    const lastPos = operations.length - 1;
+    operations[lastPos] = parseFloat(1/operations[lastPos]);
+    updateResult(lastPos);
+}
+
+function calcSquare()
+{
+    const lastPos = operations.length - 1;
+    operations[lastPos] = parseFloat(Math.pow(operations[lastPos], 2));
+    updateResult(lastPos);
+}
+
+function calcSquareRoot()
+{
+    const lastPos = operations.length - 1;
+    operations[lastPos] = parseFloat(Math.sqrt(operations[lastPos]));
+    updateResult(lastPos);
+}
+
+function throwError(message) {
+    clearDisplay();
+    updateDisplay(message);
     clearOperations();
     lastNumber = 0;
     lastOperator = '';
@@ -71,7 +114,10 @@ function addEventListenerAll(events, element, fn) {
 }
 
 function updateDisplay(value) {
-    (display.innerHTML == 0 || display.innerHTML == 'Error') ? display.innerHTML = value : display.innerHTML += value;
+    (display.innerHTML == 0 || 
+     display.innerHTML == 'Error' ||
+     display.innerHTML == 'Infinity') ? display.innerHTML = value : 
+                                        display.innerHTML += value;
 }
 
 function clearDisplay() {
@@ -105,6 +151,8 @@ function calcPercent() {
 }
 
 function addNewOperation(newOp) {
+    if(display.innerHTML == 'Infinity')
+        throwError('Infinity');
     if (isNaN(newOp)) {
         const operation = isOperator(newOp);
         switch (operation) {
