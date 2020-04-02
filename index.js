@@ -68,6 +68,11 @@ buttons.forEach(btn => {
                     calcPlusMinus();
                     break;
                 }
+            case '←':
+                {
+                    eraseEntry();
+                    break;
+                }
             default:
                 {
                     throwError('Error');
@@ -76,10 +81,28 @@ buttons.forEach(btn => {
     });
 });
 
-function updateResult(lastPos)
+function replaceDisplay(value)
 {
     clearDisplay();
-    updateDisplay(operations[lastPos]);
+    updateDisplay(value);
+}
+
+function eraseEntry()
+{
+    if(operations.length > 0 && operations.length != 2)
+    {
+        const lastPos = operations.length-1;
+        let erase = operations[lastPos];
+        erase = [...erase.toString().split('')];
+        erase.pop();
+        operations[lastPos] = parseFloat(erase.join(''));
+        replaceDisplay(operations[lastPos]);
+    }
+}
+
+function updateResult(lastPos)
+{
+    replaceDisplay(operations[lastPos]);
     lastNumber = operations[lastPos];
 }
 
@@ -118,8 +141,7 @@ function calcPlusMinus()
 }
 
 function throwError(message) {
-    clearDisplay();
-    updateDisplay(message);
+    replaceDisplay(message);
     clearOperations();
     lastNumber = 0;
     lastOperator = '';
@@ -151,8 +173,7 @@ function getResult() {
         const result = calcResult();
         if (result == undefined) return true;
         addResultToOperations(result);
-        clearDisplay();
-        updateDisplay(operations[0]);
+        replaceDisplay(operations[0]);
 
         return true;
     }
@@ -162,8 +183,7 @@ function getResult() {
 function calcPercent() {
     const tax = lastNumber / 100;
     const perc = operations.length > 1 ? operations[0] * tax : tax;
-    clearDisplay();
-    updateDisplay(perc);
+    replaceDisplay(perc);
     operations[operations.length - 1] = perc;
     lastNumber = perc;
 }
@@ -207,8 +227,7 @@ function addNewOperation(newOp) {
         }
         else {
             operations.push(parseFloat(newOp));
-            clearDisplay();
-            updateDisplay(newOp);
+            replaceDisplay(newOp);
         }
 
         lastNumber = parseFloat(operations[operations.length - 1]);
