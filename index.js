@@ -12,102 +12,169 @@ let operationFinished = false;
 buttons.forEach(btn => {
     addEventListenerAll('mouseup drag', btn, () => {
         const btnPressed = btn.textContent;
-        switch (btnPressed) {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                {
-                    addNewOperation(parseInt(btnPressed));
-                    break;
-                }
-            case '+':
-            case '-':
-                {
-                    addNewOperation(btnPressed);
-                    break;
-                }
-            case 'X':
-                {
-                    addNewOperation('*');
-                    break;
-                }
-            case '÷':
-                {
-                    addNewOperation('/');
-                    break;
-                }
-            case '=':
-                {
-                    handleEqualOperation();
-                    break;
-                }
-            case '%':
-                {
-                    calcPercent();
-                    break;
-                }
-            case '¹/x':
-                {
-                    calcOneOverX();
-                    break;
-                }
-            case 'x²':
-                {
-                    calcSquare();
-                    break;
-                }
-            case '√':
-                {
-                    calcSquareRoot();
-                    break;
-                }
-            case '±':
-                {
-                    calcPlusMinus();
-                    break;
-                }
-            case '←':
-                {
-                    eraseEntry();
-                    break;
-                }
-            case 'CE':
-                {
-                    clearDisplay();
-                    clearLastOperation();
-                    resetLastValues(0, lastOperator);
-                    break;
-                }
-            case 'C':
-                {
-                    clearDisplay();
-                    clearOperations();
-                    clearOperationsHistory();
-                    clearHistory();
-                    resetLastValues(0, '');
-                    break;
-                }
-            case ',':
-            case '.':
-                {
-                    addDot();
-                    break;
-                }
-            default:
-                {
-                    throwError('Error');
-                }
-        }
+        switchBtns(btnPressed, true);
         console.log(operationsHistory);
     });
 });
+
+document.addEventListener('keyup', pressed=>{
+    let keyPressed;
+    switch(pressed.code)
+    {
+        case 'Numpad1':
+        case 'Numpad2':
+        case 'Numpad3':
+        case 'Numpad4':
+        case 'Numpad5':
+        case 'Numpad6':
+        case 'Numpad7':
+        case 'Numpad8':
+        case 'Numpad9':
+        case 'Numpad0':
+        case 'Digit1':
+        case 'Digit2':
+        case 'Digit3':
+        case 'Digit4':
+        case 'Digit5':
+        case 'Digit6':
+        case 'Digit7':
+        case 'Digit8':
+        case 'Digit9':
+        case 'Digit0':
+            {
+                keyPressed = pressed.code.split('').pop();
+                break;
+            }
+        case 'NumpadMultiply':
+            {
+                keyPressed = 'X';
+                break;
+            }
+        case 'NumpadDivide':
+            {
+                keyPressed = '÷';
+                break;
+            }
+        case 'NumpadSubtract':
+        case 'Minus':
+            {
+                keyPressed = '-';
+                break;
+            }
+        case 'NumpadAdd':
+            {
+                keyPressed = '+';
+                break;
+            }
+        case 'NumpadEnter':
+        case 'Enter':
+        case 'Equal':
+            {
+                keyPressed = '=';
+                break;
+            }
+    }
+    switchBtns(keyPressed, false);
+});
+
+function switchBtns(obj, defaultVal)
+{
+    switch (obj) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            {
+                addNewOperation(parseInt(obj));
+                break;
+            }
+        case '+':
+        case '-':
+            {
+                addNewOperation(obj);
+                break;
+            }
+        case 'X':
+            {
+                addNewOperation('*');
+                break;
+            }
+        case '÷':
+            {
+                addNewOperation('/');
+                break;
+            }
+        case '=':
+            {
+                handleEqualOperation();
+                break;
+            }
+        case '%':
+            {
+                calcPercent();
+                break;
+            }
+        case '¹/x':
+            {
+                calcOneOverX();
+                break;
+            }
+        case 'x²':
+            {
+                calcSquare();
+                break;
+            }
+        case '√':
+            {
+                calcSquareRoot();
+                break;
+            }
+        case '±':
+            {
+                calcPlusMinus();
+                break;
+            }
+        case '←':
+            {
+                eraseEntry();
+                break;
+            }
+        case 'CE':
+            {
+                clearDisplay();
+                clearLastOperation();
+                clearLastOperationHistory();
+                resetLastValues(0, lastOperator);
+                break;
+            }
+        case 'C':
+            {
+                clearDisplay();
+                clearOperations();
+                clearOperationsHistory();
+                clearHistory();
+                resetLastValues(0, '');
+                break;
+            }
+        case ',':
+        case '.':
+            {
+                addDot();
+                break;
+            }
+        default:
+            {
+                if(defaultVal)
+                    throwError('Error');
+            }
+    }
+}
 
 function resetLastValues(lastNum, lastOp) {
     lastNumber = lastNum;
@@ -116,6 +183,11 @@ function resetLastValues(lastNum, lastOp) {
 
 function clearLastOperation() {
     operations.pop();
+}
+
+function clearLastOperationHistory()
+{
+    operationsHistory.pop();
 }
 
 function replaceDisplay(value) {
@@ -225,7 +297,7 @@ function updateDisplay(value)
         throwError('Error');
         return;
     }
-    
+
     (display.innerHTML == 0 ||
         display.innerHTML == 'Error' ||
         display.innerHTML == 'Infinity') ? display.innerHTML = value :
