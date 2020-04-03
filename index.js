@@ -3,6 +3,7 @@ const display = document.querySelector('header div#display');
 let operations = [];
 let lastNumber = 0;
 let lastOperator = '';
+let firstAddAfterDot = false;
 
 buttons.forEach(btn => {
     addEventListenerAll('mouseup drag', btn, () => {
@@ -87,6 +88,12 @@ buttons.forEach(btn => {
                     resetLastValues(0, '');
                     break;
                 }
+            case ',':
+            case '.':
+                {
+                    addDot();
+                    break;
+                }
             default:
                 {
                     throwError('Error');
@@ -95,28 +102,23 @@ buttons.forEach(btn => {
     });
 });
 
-function resetLastValues(lastNum, lastOp)
-{
+function resetLastValues(lastNum, lastOp) {
     lastNumber = lastNum;
     lastOperator = lastOp;
 }
 
-function clearLastOperation()
-{
+function clearLastOperation() {
     operations.pop();
 }
 
-function replaceDisplay(value)
-{
+function replaceDisplay(value) {
     clearDisplay();
     updateDisplay(value);
 }
 
-function eraseEntry()
-{
-    if(operations.length > 0 && operations.length != 2)
-    {
-        const lastPos = operations.length-1;
+function eraseEntry() {
+    if (operations.length > 0 && operations.length != 2) {
+        const lastPos = operations.length - 1;
         let erase = operations[lastPos];
         erase = [...erase.toString().split('')];
         erase.pop();
@@ -125,37 +127,32 @@ function eraseEntry()
     }
 }
 
-function updateResult(lastPos)
-{
+function updateResult(lastPos) {
     replaceDisplay(operations[lastPos]);
     lastNumber = operations[lastPos];
 }
 
-function calcOneOverX()
-{
+function calcOneOverX() {
     const lastPos = operations.length - 1;
-    operations[lastPos] = parseFloat(1/operations[lastPos]);
+    operations[lastPos] = parseFloat(1 / operations[lastPos]);
     updateResult(lastPos);
 }
 
-function calcSquare()
-{
+function calcSquare() {
     const lastPos = operations.length - 1;
     operations[lastPos] = parseFloat(Math.pow(operations[lastPos], 2));
     updateResult(lastPos);
 }
 
-function calcSquareRoot()
-{
+function calcSquareRoot() {
     const lastPos = operations.length - 1;
     operations[lastPos] = parseFloat(Math.sqrt(operations[lastPos]));
     updateResult(lastPos);
 }
 
-function calcPlusMinus()
-{
+function calcPlusMinus() {
     const lastPos = operations.length - 1;
-    if(lastPos > 1)
+    if (lastPos > 1)
         operations[lastPos] = -(operations[lastPos]);
     else {
         operations.push(operations[0]);
@@ -178,10 +175,10 @@ function addEventListenerAll(events, element, fn) {
 }
 
 function updateDisplay(value) {
-    (display.innerHTML == 0 || 
-     display.innerHTML == 'Error' ||
-     display.innerHTML == 'Infinity') ? display.innerHTML = value : 
-                                        display.innerHTML += value;
+    (display.innerHTML == 0 ||
+        display.innerHTML == 'Error' ||
+        display.innerHTML == 'Infinity') ? display.innerHTML = value :
+        display.innerHTML += value;
 }
 
 function clearDisplay() {
@@ -212,48 +209,89 @@ function calcPercent() {
     lastNumber = perc;
 }
 
-function addNewOperation(newOp) {
-    if(display.innerHTML == 'Infinity')
-        throwError('Infinity');
-    if (isNaN(newOp)) {
-        const operation = isOperator(newOp);
-        switch (operation) {
-            case true:
-                {
-                    getResult();
-                    if (display.innerHTML == 'Error') return;
-                    const lastPos = operations.length - 1;
-                    if (operations.length == 0) {
-                        operations.push(0);
-                        operations.push(newOp.toString());
-                    }
-                    else {
-                        if (!isNaN(operations[lastPos]))
-                            operations.push(newOp.toString());
+function hasDot() {
+    if(operations.length == 0) return false;
+    const lastPos = operations.length - 1;
+    const thisNumber = operations[lastPos].toString();
 
-                        else if (isOperator(operations[lastPos]))
-                            operations[lastPos] = newOp.toString();
-                    }
-                    lastOperator = newOp.toString();
-                    break;
-                }
-            case false:
-                {
-                    return;
-                }
+    return thisNumber.split('').indexOf('.') == -1 ? false : true;
+}
+
+function addDot() {
+    if (!hasDot()) {
+        if (operations.length == 1 || operations.length == 3) 
+        {
+            const lastPos = operations.length - 1;
+            operations[lastPos] = operations[lastPos].toString() + '.0';
+            updateDisplay(',');
         }
+        else if(operations.length == 0 || operations.length == 2)
+        {
+            operations.push('0.0');
+            replaceDisplay('0,');
+        }
+        firstAddAfterDot = true;
     }
-    else {
+}
+
+function addNewOperation(newOp) 
+{
+    if (display.innerHTML == 'Infinity')
+        throwError('Infinity');
+
+    if (isNaN(newOp)) 
+    {
+        getResult();
+
+        if (display.innerHTML == 'Error') return;
+
         const lastPos = operations.length - 1;
-        if (!isNaN(operations[lastPos])) {
-            operations[lastPos] = parseFloat(operations[lastPos] + newOp.toString());
-            updateDisplay(newOp);
+
+        if (operations.length == 0) 
+        {
+            operations.push(0);
+            operations.push(newOp.toString());
         }
-        else {
-            operations.push(parseFloat(newOp));
-            replaceDisplay(newOp);
+        else 
+        {
+            if (!isNaN(operations[lastPos]))
+                operations.push(newOp.toString());
+
+            else if (isOperator(operations[lastPos]))
+                operations[lastPos] = newOp.toString();
         }
 
+        lastOperator = newOp.toString();
+    }
+    else 
+    {
+        const lastPos = operations.length - 1;
+        if(!firstAddAfterDot)
+        {
+            if (!isNaN(operations[lastPos])) 
+            {
+                operations[lastPos] = operations[lastPos].toString() + newOp.toString();
+                updateDisplay(newOp);
+            }
+            else 
+            {
+                operations.push(newOp);
+                replaceDisplay(newOp);
+            }
+        }
+        else
+        {
+            if(newOp != 0) 
+            {
+                operations[lastPos] = (parseFloat(operations[lastPos])+newOp/10).toString();
+                replaceDisplay(operations[lastPos].toString().replace('.', ','));
+            }
+            else
+            {
+                updateDisplay(0);
+            }
+            firstAddAfterDot = false;
+        }
         lastNumber = parseFloat(operations[operations.length - 1]);
     }
     console.log(operations);
@@ -281,10 +319,10 @@ function calcResult() {
         return;
     }
 
-    operations[0] = '(' + operations[0] + ')';
-    operations[2] = '(' + operations[2] + ')';
+    operations[0] = ('(' + operations[0] + ')').replace(',', '.');
+    operations[2] = ('(' + operations[2] + ')').replace(',', '.');
     const expression = operations.join('');
-    return eval(expression);
+    return (eval(expression)).toString().replace('.', ',');
 }
 
 function addResultToOperations(result) {
