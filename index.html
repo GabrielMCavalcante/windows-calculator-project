@@ -43,7 +43,7 @@
         font-weight: bold;
         position: relative;
     }
-    #display {
+    .display {
         color: #000;
         text-align: right;
         position: absolute;
@@ -51,6 +51,13 @@
         width: 100%;
         font-size: 48px;
         font-weight: 600;
+    }
+
+    header div#historyDisplay {
+        font-size: 20px;
+        bottom: 100px;
+        opacity: .6;
+        font-weight: normal;
     }
     .btn-number {
         background-color: #EFEFEF;
@@ -72,9 +79,8 @@
     <div class="center">
         <div id="calculadora">
             <header>
-                <div id="display">
-                    0
-                </div>
+                <div class="display" id="historyDisplay">&nbsp;</div>
+                <div class="display" id="mainDisplay">0</div>
             </header>
             <section class="container">
                 <div class="row">
