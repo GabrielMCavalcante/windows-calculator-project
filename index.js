@@ -220,6 +220,12 @@ function addEventListenerAll(events, element, fn) {
 
 function updateDisplay(value) 
 {
+    if(display.innerHTML.length + 1 > 11 || value.length > 11)
+    {
+        throwError('Error');
+        return;
+    }
+    
     (display.innerHTML == 0 ||
         display.innerHTML == 'Error' ||
         display.innerHTML == 'Infinity') ? display.innerHTML = value :
