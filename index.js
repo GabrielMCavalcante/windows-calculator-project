@@ -73,6 +73,20 @@ buttons.forEach(btn => {
                     eraseEntry();
                     break;
                 }
+            case 'CE':
+                {
+                    clearDisplay();
+                    clearLastOperation();
+                    resetLastValues(0, lastOperator);
+                    break;
+                }
+            case 'C':
+                {
+                    clearDisplay();
+                    clearOperations();
+                    resetLastValues(0, '');
+                    break;
+                }
             default:
                 {
                     throwError('Error');
@@ -80,6 +94,17 @@ buttons.forEach(btn => {
         }
     });
 });
+
+function resetLastValues(lastNum, lastOp)
+{
+    lastNumber = lastNum;
+    lastOperator = lastOp;
+}
+
+function clearLastOperation()
+{
+    operations.pop();
+}
 
 function replaceDisplay(value)
 {
@@ -95,7 +120,7 @@ function eraseEntry()
         let erase = operations[lastPos];
         erase = [...erase.toString().split('')];
         erase.pop();
-        operations[lastPos] = parseFloat(erase.join(''));
+        operations[lastPos] = (erase.length > 0) ? parseFloat(erase.join('')) : 0;
         replaceDisplay(operations[lastPos]);
     }
 }
@@ -143,8 +168,7 @@ function calcPlusMinus()
 function throwError(message) {
     replaceDisplay(message);
     clearOperations();
-    lastNumber = 0;
-    lastOperator = '';
+    resetLastValues(0, '');
 }
 
 function addEventListenerAll(events, element, fn) {
